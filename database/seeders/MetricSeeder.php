@@ -13,6 +13,6 @@ class MetricSeeder extends Seeder
      */
     public function run(): void
     {
-        Metric::factory(1000)->create();
+        Metric::factory(100)->create();
     }
 }

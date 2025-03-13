@@ -2,17 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Models\ShortLink;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-class ShortLinkSeeder extends Seeder
+class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        ShortLink::factory(20)->create();
+        User::factory(10)->create();
     }
 }

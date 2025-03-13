@@ -4,7 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreShortLinkRequest extends FormRequest
+class ShortLinkRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,10 +23,22 @@ class StoreShortLinkRequest extends FormRequest
     {
         return [
             'original_link' => 'required|url',
+            'short_link' => ['string', 'min:6', 'max:8', 'unique:short_links,short_link'],
         ];
     }
 
-    public function getRedirectUrl(): string {
+    protected function prepareForValidation()
+    {
+        $user = request()->user();
+
+        if (!$user->is_pro) {
+            $this->merge([
+                'short_link' => null,
+            ]);
+        }
+    }
+    public function getRedirectUrl(): string
+    {
         return '';
     }
 }
