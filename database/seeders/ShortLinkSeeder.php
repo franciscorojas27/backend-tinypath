@@ -13,6 +13,6 @@ class ShortLinkSeeder extends Seeder
      */
     public function run(): void
     {
-        ShortLink::factory(20)->create();
+        ShortLink::factory(10)->create();
     }
 }
