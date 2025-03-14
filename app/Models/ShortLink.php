@@ -36,9 +36,9 @@ class ShortLink extends Model
         return $this->user ? null : $value;
     }
 
-    public function getRouteKey()
+    public function getRouteKeyName()
     {
-        return $this->short_link;
+        return 'short_link';
     }
 
     public function getMetricsSummaryAttribute()

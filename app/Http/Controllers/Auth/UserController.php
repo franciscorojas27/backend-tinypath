@@ -35,7 +35,7 @@ class UserController extends Controller
             $user->delete();
             return response()->json(['message' => 'Usuario eliminado correctamente'], 200);
         } catch (Exception $e) {
-            return response()->json(['error' => 'No se pudo eliminar el usuario', 'details' => $e->getMessage()], 500);
+            return response()->json(['error' => 'No se pudo eliminar el usuario'], 500);
         }
     }
 }

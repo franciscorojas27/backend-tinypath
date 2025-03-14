@@ -8,9 +8,9 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::get('/shortLinks', [ShortLinkController::class, 'index']);
 
-    Route::post('/shortLinks', [ShortLinkController::class, 'store']);
+    Route::post('/shortLink', [ShortLinkController::class, 'store']);
 
-    Route::put('/shortLinks/{shortLink}', [ShortLinkController::class, 'update']);
+    Route::put('/shortLink/{shortLink}', [ShortLinkController::class, 'update']);
 
-    Route::delete('/shortLinks/{shortLink}', [ShortLinkController::class, 'destroy']);
+    Route::delete('/shortLink/{shortLink}', [ShortLinkController::class, 'destroy']);
 });

@@ -6,7 +6,7 @@ use App\Models\ShortLink;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Exceptions\ShortLinkException;
-use App\Http\Requests\Auth\ShortLinkRequest;
+use App\Http\Requests\ShortLinkRequest;
 
 class ShortLinkController extends Controller
 {
@@ -38,6 +38,7 @@ class ShortLinkController extends Controller
 
     public function update(ShortLink $shortLink, ShortLinkRequest $request)
     {
+        
         if ($request->user()->id !== $shortLink->user_id) {
             throw new ShortLinkException("No tienes permiso para actualizar este enlace", 403);
         }
@@ -68,3 +69,4 @@ class ShortLinkController extends Controller
         return $slug;
     }
 }
+ 

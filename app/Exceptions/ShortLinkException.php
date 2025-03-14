@@ -3,8 +3,8 @@
 namespace App\Exceptions;
 
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 
 class ShortLinkException extends Exception
 {
@@ -17,9 +17,9 @@ class ShortLinkException extends Exception
         $this->code = $code;
     }
 
-    public function render(Request $request): Response
+    public function render(): JsonResponse
     {
-        return $request()->json([
+        return response()->json([
             'error' => $this->message
         ], $this->code);
     }
