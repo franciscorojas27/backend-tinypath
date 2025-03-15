@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use BaconQrCode\Writer;
 use App\Models\ShortLink;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Exceptions\ShortLinkException;
 use App\Http\Requests\ShortLinkRequest;
+use BaconQrCode\Renderer\GDLibRenderer;
 
 class ShortLinkController extends Controller
 {
@@ -17,7 +19,7 @@ class ShortLinkController extends Controller
         if ($shortLinks->isEmpty()) {
             throw new ShortLinkException("No se encontraron enlaces para el usuario", 404);
         }
-        
+
         return response()->json($shortLinks);
     }
     public function store(ShortLinkRequest $ShortLinkRequest, Request $request)
@@ -38,7 +40,7 @@ class ShortLinkController extends Controller
 
     public function update(ShortLink $shortLink, ShortLinkRequest $request)
     {
-        
+
         if ($request->user()->id !== $shortLink->user_id) {
             throw new ShortLinkException("No tienes permiso para actualizar este enlace", 403);
         }
@@ -68,5 +70,15 @@ class ShortLinkController extends Controller
 
         return $slug;
     }
+    public function generateQr(ShortLink $shortLink, Request $request)
+    {
+        if (!$shortLink->user_id !== $request->user()->id) {
+            throw new ShortLinkException("No se pudo crear el código QR", 500);
+        }
+        $renderer = new GDLibRenderer(400);
+        $writer = new Writer($renderer);    
+        $qrCode = $writer->writeString(config('app.url') . '/' . $shortLink->short_link, '');
+
+        return response($qrCode, 200)->header('Content-Type', 'image/png');
+    }
 }
- 
