@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\ShortLink;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ShortLinkRequest extends FormRequest
@@ -31,12 +32,12 @@ class ShortLinkRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        $user = request()->user();
 
-        if (!$user->is_pro) {
+        if (!$this->user()->is_pro) {
             $this->merge([
-                'short_link' => null,
+                'short_link' => null
             ]);
         }
     }
+
 }

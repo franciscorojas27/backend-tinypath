@@ -17,52 +17,54 @@ class ShortLinkController extends Controller
         $shortLinks = $request->user()?->shortLinks()->paginate(21);
 
         if ($shortLinks->isEmpty()) {
-            throw new ShortLinkException("No se encontraron enlaces para el usuario", 404);
+            throw new ShortLinkException("No links found for the user.", 404);
         }
 
         return response()->json($shortLinks);
     }
-    public function store(ShortLinkRequest $ShortLinkRequest, Request $request)
+    public function store(ShortLinkRequest $request)
     {
         $user = $request->user();
         $shortLink = ShortLink::create([
             'user_id' => $user->id,
-            'original_link' => $ShortLinkRequest->original_link,
-            'short_link' => $ShortLinkRequest->short_link ?? $this->generateShortLink(),
+            'original_link' => $request->original_link,
+            'short_link' => $request->short_link ?? $this->generateShortLink(),
             'expire_at' => now()->addDays(7),
         ]);
         if (!$shortLink) {
-            throw new ShortLinkException("No se pudo crear el enlace", 500);
+            throw new ShortLinkException("Failed to create the link.", 422);
         }
 
-        return response()->json(['message' => 'Enlace creado correctamente'], 200);
+        return response()->json(['message' => 'Link created successfully.'], 201);
     }
 
     public function update(ShortLink $shortLink, ShortLinkRequest $request)
     {
         if ($request->user()->id !== $shortLink->user_id) {
-            throw new ShortLinkException("No tienes permiso para actualizar este enlace", 403);
+            throw new ShortLinkException("You do not have permission to update this link.", 401);
         }
 
-        $shortLink->update($request->all());
-
-        return response()->json(['message' => 'Enlace actualizado correctamente'], 200);
+        $shortLink->update([
+            'original_link' => $request->original_link,
+            'short_link' => $request->short_link ?? $shortLink->short_link,
+        ]);
+        return response()->json(['message' => 'Link updated successfully.'], 200);
     }
 
     public function destroy(ShortLink $shortLink, Request $request)
     {
         if ($request->user()->id !== $shortLink->user_id) {
-            throw new ShortLinkException("No tienes permiso para actualizar este enlace", 403);
+            throw new ShortLinkException("You do not have permission to delete this link.", 401);
         }
 
         $shortLink->delete();
 
-        return response()->json(['message' => 'Enlace eliminado correctamente'], 200);
+        return response()->json(['message' => 'Link deleted successfully.'], 200);
     }
     public function generateQr(ShortLink $shortLink, Request $request)
     {
-        if (!$shortLink->user_id !== $request->user()->id) {
-            throw new ShortLinkException("No se pudo crear el código QR", 500);
+        if ($shortLink->user_id !== $request->user()->id) {
+            throw new ShortLinkException("You do not have permission to generate QR of this link.", 401);
         }
         $renderer = new GDLibRenderer(400);
         $writer = new Writer($renderer);
@@ -79,4 +81,3 @@ class ShortLinkController extends Controller
         return $slug;
     }
 }
-

@@ -8,11 +8,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/shortLinks', [ShortLinkController::class, 'index']);
 
-    Route::post('/shortLink', [ShortLinkController::class, 'store']);
+    Route::post('/shortLinks', [ShortLinkController::class, 'store']);
 
-    Route::put('/shortLink/{shortLink}', [ShortLinkController::class, 'update']);
+    Route::put('/shortLinks/{shortLink}', [ShortLinkController::class, 'update']);
 
-    Route::delete('/shortLink/{shortLink}', [ShortLinkController::class, 'destroy']);
+    Route::delete('/shortLinks/{shortLink}', [ShortLinkController::class, 'destroy']);
 
-    Route::get('/shortLink/{shortLink}/qr', [ShortLinkController::class, 'generateQr']);
+    Route::get('/shortLinks/{shortLink}/qr', [ShortLinkController::class, 'generateQr']);
 });
