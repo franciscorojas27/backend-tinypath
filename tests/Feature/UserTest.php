@@ -5,9 +5,6 @@ use function Pest\Laravel\artisan;
 
 use Illuminate\Support\Facades\DB;
 
-beforeEach(function () {
-    artisan('migrate:refresh --seed');
-});
 
 test('can see user values', function () {
     $user = AppUser::factory()->create();
@@ -34,20 +31,22 @@ test('user no unauthorized cant see values', function () {
 test('user can update values', function () {
     $user = AppUser::factory()->create();
     $token = $user->createToken('App')->plainTextToken;
+    $name = fake()->name();
+    $email = fake()->email();
     $response = $this->withHeaders([
         'Accept' => 'application/json',
         'Content-Type' => 'application/json',
         'Authorization' => 'Bearer ' . $token
     ])->putJson('/api/users/profile', [
-        'name' => 'pep',
-        'email' => 'franco1@example.com',
+        'name' => $name,
+        'email' => $email,
     ]);
-    $response->assertStatus(200)
+    $response->assertOk(200)
         ->assertJson(['message' => 'User updated successfully.']);
 
     $this->assertDatabaseHas('users', [
-        'name' => 'pep',
-        'email' => 'franco1@example.com',
+        'name' => $name,
+        'email' => $email,
     ]);
 });
 
@@ -65,7 +64,7 @@ test('user cannot update his account with an invalid token', function () {
         'email' => 'franco1@example.com',
     ]);
 
-    $response->assertStatus(401)
+    $response->assertUnauthorized()
         ->assertJson(['message' => 'Unauthenticated.']);
 });
 
@@ -103,7 +102,7 @@ test('user cannot delete his account with an invalid token', function () {
         'password' => 'password',
     ]);
 
-    $response->assertStatus(401)
+    $response->assertUnauthorized()
         ->assertJson(['message' => 'Unauthenticated.']);
 });
 
@@ -120,10 +119,36 @@ test('user cant delete him account with a wrong password', function () {
     ])->deleteJson('/api/users/profile', [
         'password' => '281090093',
     ]);
-    $response->assertStatus(401)
+    $response->assertUnauthorized()
         ->assertJson(['error' => 'Incorrect password.']);
 
     $this->assertDatabaseHas('users', [
         'id' => $user->id,
     ]);
+});
+
+
+test('db fails', function () {
+    $user = AppUser::factory()->create([
+        'password' => bcrypt('password'),
+    ]);
+
+    $token = $user->createToken('App')->plainTextToken;
+    $this->withoutMiddleware();
+
+    config()->set('database.connections.mysql.database', 'invalid_database');
+    config()->set('database.connections.mysql.host', 'invalid_host');
+
+    DB::purge('mysql');
+    DB::reconnect('mysql');
+
+    $response = $this->withHeaders([
+        'Accept' => 'application/json',
+        'Content-Type' => 'application/json',
+        'Authorization' => 'Bearer ' . $token
+    ])->deleteJson('/api/users/profile', [
+        'password' => '281090093',
+    ]);
+
+    $response->assertStatus(500);
 });

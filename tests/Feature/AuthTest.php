@@ -1,39 +1,32 @@
+
 <?php
 
 use App\Models\User;
-use function Pest\Laravel\artisan;
-
-beforeEach(function () {
-    artisan('migrate:refresh --seed');
-});
 
 test('can login with valid credentials', function () {
-    User::factory()->create([
-        'email' => 'franco@example.com',
+    $user = User::factory()->create([
         'password' => bcrypt('password')
     ]);
     $response = $this->postJson('/api/login', [
-        'email' => 'franco@example.com',
+        'email' =>  $user->email,
         'password' => 'password'
     ]);
     $response->assertJsonStructure(['token']);
 });
 test('cant login with invalid credentials', function () {
-    User::factory()->create([
-        'email' => 'franco1@example.com',
+    $user = User::factory()->create([
         'password' => bcrypt('password')
     ]);
     $response = $this->postJson('/api/login', [
-        'email' => 'franco1@example.com',
-        'password' => 'wrong-password',
+        'email' => $user->email,       'password' => 'wrong-password',
     ]);
     $response->assertStatus(401);
 });
 
 test('can register new user', function () {
     $response = $this->postJson('/api/register', [
-        'name' => 'pepe2',
-        'email' => 'franco2@gmail.com',
+        'name' => fake()->name(),
+        'email' => fake()->email(),
         'password' => 'password',
         'password_confirmation' => 'password'
     ]);

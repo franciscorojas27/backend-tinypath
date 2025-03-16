@@ -7,6 +7,21 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\ResetPasswordNotification;
 
+
+test('cannot send reset password email more than 6 times in a minute', function () {
+    Notification::fake();
+    $user = User::factory()->create();
+
+    for ($i = 0; $i < 6; $i++) {
+        $this->post('/api/password/forgot-password', ['email' => $user->email]);
+    }
+
+    $response = $this->post('/api/password/forgot-password', ['email' => $user->email]);
+
+    $response->assertStatus(429); 
+});
+
+
 test('can send email to reset password', function () {
     Notification::fake();
     $user = User::factory()->create();

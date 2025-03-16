@@ -2,6 +2,19 @@
 
 use App\Models\User;
 
+
+test('short link can redirect', function(){
+    $user = User::factory()->create();
+    $user->shortLinks()->create([
+        'original_link' => 'https://google.com',
+        'short_link' => \Illuminate\Support\Str::random(6),
+        'expire_at' => now()->addDays(7),
+    ]);
+    $shortLink = $user->shortLinks->first();
+    $response = $this->get($shortLink->short_link);
+    $response->assertRedirect($shortLink->original_link);
+});
+
 test('user without token cannot get short links', function () {
     $response = $this->getJson('/api/shortLinks');
 
