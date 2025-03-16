@@ -18,24 +18,28 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->update($request->all())) return response()->json(['error' => 'No se pudo actualizar el usuario'], 500);
+        if (!$user->update($request->all())) return response()->json(['error' => 'Could not update user'], 500);
 
-        return response()->json(['message' => 'Usuario actualizado correctamente'], 200);
+        return response()->json(['message' => 'User updated successfully.'], 200);
     }
     public function destroy(Request $request)
     {
         $user = $request->user();
 
+        $request->validate([
+            'password' => ['required', 'string', 'min:8']
+        ]);
+        
         if (!Hash::check($request->input('password'), $user->password)) {
-            return response()->json(['error' => 'Contraseña incorrecta'], 401);
+            return response()->json(['error' => 'Incorrect password.'], 401);
         }
 
         try {
             $user->tokens()->delete();
             $user->delete();
-            return response()->json(['message' => 'Usuario eliminado correctamente'], 200);
+            return response()->json(['message' => 'User deleted successfully.'], 200);
         } catch (Exception $e) {
-            return response()->json(['error' => 'No se pudo eliminar el usuario'], 500);
+            return response()->json(['error' => 'Could not delete user.'], 500);
         }
     }
 }

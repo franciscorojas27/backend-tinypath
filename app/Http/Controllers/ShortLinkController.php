@@ -40,7 +40,6 @@ class ShortLinkController extends Controller
 
     public function update(ShortLink $shortLink, ShortLinkRequest $request)
     {
-
         if ($request->user()->id !== $shortLink->user_id) {
             throw new ShortLinkException("No tienes permiso para actualizar este enlace", 403);
         }
@@ -52,7 +51,6 @@ class ShortLinkController extends Controller
 
     public function destroy(ShortLink $shortLink, Request $request)
     {
-
         if ($request->user()->id !== $shortLink->user_id) {
             throw new ShortLinkException("No tienes permiso para actualizar este enlace", 403);
         }
@@ -61,7 +59,17 @@ class ShortLinkController extends Controller
 
         return response()->json(['message' => 'Enlace eliminado correctamente'], 200);
     }
+    public function generateQr(ShortLink $shortLink, Request $request)
+    {
+        if (!$shortLink->user_id !== $request->user()->id) {
+            throw new ShortLinkException("No se pudo crear el código QR", 500);
+        }
+        $renderer = new GDLibRenderer(400);
+        $writer = new Writer($renderer);
+        $qrCode = $writer->writeString(config('app.url') . '/' . $shortLink->short_link, '');
 
+        return response($qrCode, 200)->header('Content-Type', 'image/png');
+    }
     private function generateShortLink()
     {
         do {
@@ -70,15 +78,5 @@ class ShortLinkController extends Controller
 
         return $slug;
     }
-    public function generateQr(ShortLink $shortLink, Request $request)
-    {
-        if (!$shortLink->user_id !== $request->user()->id) {
-            throw new ShortLinkException("No se pudo crear el código QR", 500);
-        }
-        $renderer = new GDLibRenderer(400);
-        $writer = new Writer($renderer);    
-        $qrCode = $writer->writeString(config('app.url') . '/' . $shortLink->short_link, '');
-
-        return response($qrCode, 200)->header('Content-Type', 'image/png');
-    }
 }
+

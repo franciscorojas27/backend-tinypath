@@ -17,7 +17,7 @@ class MetricFactory extends Factory
     public function definition(): array
     {
         return [
-            'short_link_id' => $this->faker->numberBetween(1, 20),
+            'short_link_id' => $this->faker->numberBetween(1, 10),
             'ip_user' => $this->faker->ipv4,
             'user_agent' => $this->faker->userAgent,
             'country' => $this->faker->country,
